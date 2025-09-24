@@ -5,12 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { OctagonAlertIcon } from "lucide-react";
@@ -19,200 +19,226 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import {FaGithub, FaGoogle} from "react-icons/fa"
+
 import { useState } from "react";
 
 const formSchema = z
-  .object({
-    email: z.string().email(),
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters" }),
-    confirmPassword: z
-      .string()
-      .min(6, {
-        message: "Confirm Password must be at least 6 characters",
-      }),
-    name: z
-      .string()
-      .min(2, { message: "Name must be at least 2 characters" }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+    .object({
+        email: z.string().email(),
+        password: z
+            .string()
+            .min(6, { message: "Password must be at least 6 characters" }),
+        confirmPassword: z
+            .string()
+            .min(6, {
+                message: "Confirm Password must be at least 6 characters",
+            }),
+        name: z
+            .string()
+            .min(2, { message: "Name must be at least 2 characters" }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });
 
 export const SignUpView = () => {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+    const router = useRouter();
+    const [error, setError] = useState<string | null>(null);
+    const [pending, setPending] = useState(false);
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    setError(null);
-    setPending(true);
-
-    authClient.signUp.email(
-      {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      },
-      {
-        onError: ({ error }) => {
-          setError(error.message || "Something went wrong");
-          console.error("Sign up error:", error);
-          setPending(false);
+    const form = useForm({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
         },
-        onSuccess: (data) => {
-          console.log("Sign up success:", data);
-          setPending(false);
-          router.push("/");
-        },
-      }
+    });
+
+    const onSubmit = (data: z.infer<typeof formSchema>) => {
+        setError(null);
+        setPending(true);
+
+        authClient.signUp.email(
+            {
+                name: data.name,
+                email: data.email,
+                password: data.password,
+                callbackURL: "/",
+            },
+            {
+                onError: ({ error }) => {
+                    setError(error.message || "Something went wrong");
+                    console.error("Sign up error:", error);
+                    setPending(false);
+                },
+                onSuccess: (data) => {
+                    console.log("Sign up success:", data);
+                    router.push("/");
+                    setPending(false);
+                },
+            }
+        );
+    };
+
+    const onSocial = (provider: 'google' | 'github') => {
+        setError(null);
+        setPending(true);
+        authClient.signIn.social({
+            provider: provider,
+            callbackURL: "/"
+        }, {
+            onError: ({ error }) => {
+                setError(error.message || "Something went wrong");
+                console.error("Sign in error:", error);
+                setPending(false);
+            },
+            onSuccess: (data) => {
+                console.log("Sign in success:", data);
+                setPending(false);
+            },
+        });
+    }
+
+    return (
+        <div className="flex flex-col gap-6">
+            <Card className="overflow-hidden p-0">
+                <CardContent className="grid p-0 md:grid-cols-2">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
+                            <div className="flex flex-col gap-6">
+                                <div className="flex flex-col items-center text-center">
+                                    <h1 className="text-2xl font-bold">Let's get started!</h1>
+                                    <p className="text-muted-foreground text-balance">
+                                        Sign up to continue to Meet.AI
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-3">
+                                    <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Enter your full name" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="email"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Email</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="Enter your email"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="password"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Password</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="Enter your password"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="confirmPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Confirm Password</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="Re-enter your password"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                {error && (
+                                    <Alert variant="destructive" className="bg-destructive/10 text-sm">
+                                        <OctagonAlertIcon className="size-4 !text-destructive" />
+                                        <AlertTitle className="text-sm">{error}</AlertTitle>
+                                    </Alert>
+                                )}
+
+                                <Button type="submit" className="w-full" disabled={pending}>
+                                    {pending ? "Creating account..." : "Sign Up"}
+                                </Button>
+
+                                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:border-t">
+                                    <span className="bg-card px-2 z-10 relative text-muted-foreground">
+                                        Or continue with
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Button
+                                        onClick={() => onSocial("google")}
+                                        disabled={pending} type="button" variant="outline" className="w-full">
+                                        <FaGoogle />
+                                    </Button>
+                                    <Button
+                                        onClick={() => onSocial("github")}
+                                        disabled={pending} type="button" variant="outline" className="w-full">
+                                        <FaGithub />
+                                    </Button>
+                                </div>
+
+                                <div className="text-center text-sm">
+                                    <span className="text-muted-foreground">
+                                        Already have an account?{" "}
+                                        <Link href="/sign-in" className="text-blue-700 hover:underline">
+                                            Sign in
+                                        </Link>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </Form>
+
+                    <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
+                        <img src="/logo.svg" alt="Logo" className="h-16 w-16" />
+                        <p className="text-2xl font-bold text-white">Meet.AI</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-cs text-balance *:[a]:underline *:[a]:underline-offset-4">
+                By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </div>
+        </div>
     );
-  };
-
-  return (
-    <div className="flex flex-col gap-6">
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-bold">Let's get started!</h1>
-                  <p className="text-muted-foreground text-balance">
-                    Sign up to continue to Meet.AI
-                  </p>
-                </div>
-
-                <div className="grid gap-3">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="Enter your email"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Enter your password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Re-enter your password"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {error && (
-                  <Alert variant="destructive" className="bg-destructive/10 text-sm">
-                    <OctagonAlertIcon className="size-4 !text-destructive" />
-                    <AlertTitle className="text-sm">{error}</AlertTitle>
-                  </Alert>
-                )}
-
-                <Button type="submit" className="w-full" disabled={pending}>
-                  {pending ? "Creating account..." : "Sign Up"}
-                </Button>
-
-                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:border-t">
-                  <span className="bg-card px-2 z-10 relative text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <Button disabled={pending} type="button" variant="outline" className="w-full">
-                    Google
-                  </Button>
-                  <Button disabled={pending} type="button" variant="outline" className="w-full">
-                    GitHub
-                  </Button>
-                </div>
-
-                <div className="text-center text-sm">
-                  <span className="text-muted-foreground">
-                    Already have an account?{" "}
-                    <Link href="/sign-in" className="text-blue-700 hover:underline">
-                      Sign in
-                    </Link>
-                  </span>
-                </div>
-              </div>
-            </form>
-          </Form>
-
-          <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-            <img src="/logo.svg" alt="Logo" className="h-16 w-16" />
-            <p className="text-2xl font-bold text-white">Meet.AI</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-cs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-      </div>
-    </div>
-  );
 };

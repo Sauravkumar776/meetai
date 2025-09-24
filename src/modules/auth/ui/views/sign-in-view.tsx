@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import { useState } from "react";
 
 const formSchema = z.object({
@@ -32,14 +33,35 @@ export const SignInView = () => {
         },
     });
 
-    const onSubmit =  (data: z.infer<typeof formSchema>) => {
+    const onSubmit = (data: z.infer<typeof formSchema>) => {
         setError(null);
         setPending(true);
-         authClient.signIn.email({
+        authClient.signIn.email({
             email: data.email,
             password: data.password,
+            callbackURL: "/"
         }, {
-            onError: ({error}) => {
+            onError: ({ error }) => {
+                setError(error.message || "Something went wrong");
+                console.error("Sign in error:", error);
+                setPending(false);
+            },
+            onSuccess: (data) => {
+                console.log("Sign in success:", data);
+                router.push("/");
+                setPending(false);
+            },
+        });
+    }
+
+    const onSocial = (provider: 'google' | 'github') => {
+        setError(null);
+        setPending(true);
+        authClient.signIn.social({
+            provider: provider,
+            callbackURL: "/"
+        }, {
+            onError: ({ error }) => {
                 setError(error.message || "Something went wrong");
                 console.error("Sign in error:", error);
                 setPending(false);
@@ -47,7 +69,6 @@ export const SignInView = () => {
             onSuccess: (data) => {
                 console.log("Sign in success:", data);
                 setPending(false);
-                router.push("/");
             },
         });
     }
@@ -114,8 +135,12 @@ export const SignInView = () => {
                                 </span>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <Button disabled={pending} type="button" variant="outline" className="w-full">Google</Button>
-                                <Button disabled={pending} type="button" variant="outline" className="w-full">GitHub</Button>
+                                <Button
+                                    onClick={() => onSocial("google")}
+                                    disabled={pending} type="button" variant="outline" className="w-full"><FaGoogle /></Button>
+                                <Button
+                                    onClick={() => onSocial("github")}
+                                    disabled={pending} type="button" variant="outline" className="w-full"><FaGithub /></Button>
                             </div>
                             <div className="text-center text-sm">
                                 <span className="text-muted-foreground">

@@ -229,14 +229,14 @@ export const SignUpView = () => {
                         </form>
                     </Form>
 
-                    <div className="bg-radial from-sidebar-accent to-sidebar-accent relative hidden md:flex flex-col gap-y-4 items-center justify-center">
+                    <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
                         <img src="/logo.svg" alt="Logo" className="h-16 w-16" />
                         <p className="text-2xl font-bold text-white">Meet.AI</p>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-cs text-balance *:[a]:underline *:[a]:underline-offset-4">
+            <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
                 By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
             </div>
         </div>

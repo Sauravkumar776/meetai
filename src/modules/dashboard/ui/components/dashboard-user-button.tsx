@@ -16,8 +16,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"
-import { Avatar } from "@radix-ui/react-avatar";
-import { AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { user } from "@/db/schema";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import {  ChevronDownIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
@@ -53,7 +52,7 @@ export const DashboardUserButton = () => {
                             <GeneratedAvatar
                                 seed={data.user.name || data.user.email || "U"}
                                 variant="botttsNeutral"
-                                className="size mr-3"
+                                className="mr-3"
                             />
 
                 }

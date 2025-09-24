@@ -1,4 +1,10 @@
 import { authClient } from "@/lib/auth-client"
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { GeneratedAvatar } from "@/components/generated-avatar";
+import { ChevronDownIcon, CreditCardIcon, LogOutIcon, UserIcon, SettingsIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 import {
     DropdownMenu,
     DropdownMenuPortal,
@@ -28,13 +34,6 @@ import {
     DrawerTitle,
     DrawerDescription
 } from "@/components/ui/drawer"
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { user } from "@/db/schema";
-import { GeneratedAvatar } from "@/components/generated-avatar";
-import { ChevronDownIcon, CreditCardIcon, LogOutIcon, UserIcon, SettingsIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useSidebar } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 
 export const DashboardUserButton = () => {
     const { data, isPending } = authClient.useSession();

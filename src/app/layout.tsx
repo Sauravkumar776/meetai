@@ -16,7 +16,7 @@ const interMono = Inter({
 
 export const metadata: Metadata = {
   title: "MeetAI",
-  description: "...",
+  description: "AI-powered meeting assistant and agent management platform",
 };
 
 export default function RootLayout({

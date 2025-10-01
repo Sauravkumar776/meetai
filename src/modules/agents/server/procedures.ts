@@ -4,12 +4,16 @@ import { createTRPCRouter, baseProcedure, protectedProcedure } from "@/trpc/init
 import { TRPCError } from "@trpc/server";
 import { agentsInsertSchema } from "../schema";
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns, sql } from "drizzle-orm";
 
-export const agentsRouter = createTRPCRouter({ 
+export const agentsRouter = createTRPCRouter({
     getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
         const [existingAgent] = await db
-            .select()
+            .select({
+                ...getTableColumns(agents),
+                meetingCount: sql<number>`5`,
+            }
+            )
             .from(agents)
             .where(
                 and(
@@ -17,17 +21,22 @@ export const agentsRouter = createTRPCRouter({
                     eq(agents.userId, ctx.auth.user.id)
                 )
             );
-    
-            if(!existingAgent){
-                throw new TRPCError({code: "NOT_FOUND", message: "Agent not found"});
-            }
-    
+
+        if (!existingAgent) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Agent not found" });
+        }
+
         return existingAgent;
     }),
 
-    getMany: protectedProcedure.query(async ({ctx}) => {
+    // TODO fix meeting counting in getOne and getMany
+
+    getMany: protectedProcedure.query(async ({ ctx }) => {
         const data = await db
-            .select()
+            .select({
+                ...getTableColumns(agents),
+                meetingCount: sql<number>`5`,
+            })
             .from(agents)
             .where(
                 eq(agents.userId, ctx.auth.user.id)

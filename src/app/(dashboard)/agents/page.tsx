@@ -1,6 +1,6 @@
 import { LoadingState } from "@/components/loading-state";
 import { AgentsView } from "@/modules/agents/ui/views/agents-view";
-import { AgentsListHeader } from "@/modules/agents/ui/views/components/agents-list-header";
+import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
